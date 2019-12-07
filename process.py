@@ -3,16 +3,19 @@ import cv2
 from PIL import Image
 
 def facecrop(input_image_path,
-    output_image_path):  
-    facedata = "haarcascade_frontalface_default.xml"
+    output_image_path):
+    facedata = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
     cascade = cv2.CascadeClassifier(facedata)
 
     img = cv2.imread(input_image_path)
 
-    minisize = (img.shape[1],img.shape[0])
-    miniframe = cv2.resize(img, minisize)
+    bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    faces = cascade.detectMultiScale(miniframe)
+    minisize = (bw.shape[1],bw.shape[0])
+    miniframe = cv2.resize(bw, minisize)
+
+    faces = cascade.detectMultiScale(miniframe, 1.1, 4)
+
 
     for f in faces:
         x, y, w, h = [ v for v in f ]
@@ -21,7 +24,8 @@ def facecrop(input_image_path,
         sub_face = img[y:y+h, x:x+w]
         cv2.imwrite(output_image_path, sub_face)
 
-    cv2.imshow(image, img)
+    cv2.imshow('img', img)
+    cv2.waitKey(0)
 
     return
 
