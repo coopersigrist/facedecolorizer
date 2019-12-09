@@ -1,5 +1,6 @@
 import cv2
 import argparse
+import capture
 
 from PIL import Image
 
@@ -22,9 +23,6 @@ def facecrop(input_image_path,
 
     bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # minisize = (bw.shape[1],bw.shape[0])
-    # miniframe = cv2.resize(bw, minisize)
-
     faces = cascade.detectMultiScale(bw, 1.1, 4)
 
 
@@ -45,9 +43,10 @@ def facecrop(input_image_path,
 
     face2 = cv2.bilateralFilter(sub_face, 11, 17, 17)
     edged = cv2.Canny(face2, 30, 200)
-    fin = cv2.resize(edged, (edged.shape[1]*6,edged.shape[0]*6))
+    fin = cv2.resize(edged, (edged.shape[1]*3,edged.shape[0]*3))
     cv2.imwrite(output_image_path, fin)
     cv2.imshow('img', fin)
+    print("Press any key to continue")
     cv2.waitKey(0)
 
     return
@@ -60,7 +59,7 @@ def black_and_white(input_image_path,
    bw.save(output_image_path)
 
 if __name__ == "__main__":
-
-    facecrop("./faces/wolverine_face.jpeg", "./faces/contoured_face.jpeg")
+    capture.cap()
+    facecrop("./capture.jpeg", "./faces/contoured_face_capture.jpeg")
 
     pass
