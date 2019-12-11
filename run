@@ -1,3 +1,27 @@
 #!/bin/bash
 
-python3 process.py
+x_shift=0
+y_shift=0
+dir="default"
+for arg in "$@"
+do
+    case $arg in
+        -x=*)
+            x_shift="${arg#*=}"
+            shift
+            ;;
+        -y=*)
+            y_shift="${arg#*=}"
+            shift
+            ;;
+        -name=*)
+            dir="${arg#*=}"
+            shift
+            ;;
+    esac
+done
+# echo $x_shift
+# echo $y_shift
+# echo $dir
+
+python3 controller.py --name $dir --x_shift $x_shift --y_shift $y_shift
