@@ -1,30 +1,19 @@
 import cv2
-import argparse
-import capture
 
 from PIL import Image
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--x_shift", type=int, default=0)
-parser.add_argument("--y_shift", type=int, default=0)
-
-args = parser.parse_args()
-
 def facecrop(input_image_path,
-    output_image_path):
+    output_image_path, x_shift, y_shift):
 
-    X_SHIFT = args.x_shift
-    Y_SHIFT = args.y_shift
+    X_SHIFT = x_shift
+    Y_SHIFT = y_shift
 
     facedata = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
     cascade = cv2.CascadeClassifier(facedata)
 
     img = cv2.imread(input_image_path)
 
-    bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    faces = cascade.detectMultiScale(bw, 1.1, 4)
-
+    faces = cascade.detectMultiScale(img, 1.1, 4)
 
     for f in faces:
         x, y, w, h = [ v for v in f ]
@@ -35,31 +24,47 @@ def facecrop(input_image_path,
         max_y = img.shape[1]
 
         box_y = min(y+h+Y_SHIFT*2, max_y)
-        box_x = min(x+w+X_SHIFT*2, max_x)   
+        box_x = min(x+w+X_SHIFT*2, max_x)
 
         # cv2.rectangle(img, (x,y), (x+w,y+h), (255,255,255))
 
         sub_face = img[y:box_y, x:box_x]
 
-    face2 = cv2.bilateralFilter(sub_face, 11, 17, 17)
+    # show(sub_face)
+    # contoured = contourize(sub_face)
+    cv2.imwrite(output_image_path, sub_face)
+    # show(contoured)
+    # return contoured
+
+def contourize(input_image_path,
+    output_image_path):
+
+    img = cv2.imread(input_image_path)
+    face2 = cv2.bilateralFilter(img, 11, 17, 17)
     edged = cv2.Canny(face2, 30, 200)
-    fin = cv2.resize(edged, (edged.shape[1]*3,edged.shape[0]*3))
-    cv2.imwrite(output_image_path, fin)
-    cv2.imshow('img', fin)
+    contoured = cv2.resize(edged, (edged.shape[1]*2,edged.shape[0]*2))
+    cv2.imwrite(output_image_path, contoured)
+
+def show(img):
+    cv2.imshow('img', img)
     print("Press any key to continue")
     cv2.waitKey(0)
 
-    return
-
- 
 def black_and_white(input_image_path,
     output_image_path):
-   color_image = Image.open(input_image_path)
-   bw = color_image.convert('L')
-   bw.save(output_image_path)
+    img = cv2.imread(input_image_path)
+    bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    cv2.imwrite(output_image_path, bw)
 
-if __name__ == "__main__":
-    capture.cap()
-    facecrop("./capture.jpeg", "./faces/contoured_face_capture.jpeg")
+def cap(output_image_path = "./capture.jpeg"):
 
-    pass
+    video_capture = cv2.VideoCapture(0)
+    # Check success
+    if not video_capture.isOpened():
+        raise Exception("Could not open video device")
+    # Read picture. ret === True on success
+    ret, frame = video_capture.read()
+    cv2.imwrite(output_image_path, frame)
+    # Close device
+    video_capture.release()
+
