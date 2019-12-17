@@ -28,3 +28,4 @@ except (UnboundLocalError, cv2.error):
     print("Face not found. Please try again.")
     shutil.rmtree(dir)
     exit(0)
+process.svg(dir + "/face_capture.jpeg", dir + "/face_contours.svg")

@@ -1,4 +1,5 @@
 import cv2
+import time
 
 def facecrop(input_image_path, output_image_path, x_shift, y_shift):
     X_SHIFT = x_shift
@@ -40,6 +41,31 @@ def contourize(input_image_path, output_image_path):
     contoured = cv2.resize(edged, (edged.shape[1]*2,edged.shape[0]*2))
     cv2.imwrite(output_image_path, contoured)
 
+def svg(input_image_path, output_image_path):
+    img = cv2.imread(input_image_path)
+    # cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # ret,thresh = cv2.threshold(img,27,25,0)
+    # contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    edged = cv2.Canny(img, 30, 200)
+    contours, hierarchy = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # show(edged)
+    c = max(contours, key=cv2.contourArea)
+    f = open(output_image_path, 'w+')
+
+    f.write('<svg width="'+str(img.shape[1])+'" height="'+str(img.shape[0])+'" xmlns="http://www.w3.org/2000/svg">')
+    f.write('<path d="M')
+
+    for i in range(len(c)):
+        #print(c[i][0])
+        x, y = c[i][0]
+        # print(x)
+        f.write(str(x)+  ' ' + str(y)+' ')
+
+    f.write('"/>')
+    f.write('</svg>')
+    f.close()
+
 
 def black_and_white(input_image_path, output_image_path):
     img = cv2.imread(input_image_path)
@@ -48,6 +74,12 @@ def black_and_white(input_image_path, output_image_path):
 
 
 def cap(output_image_path = "./capture.jpeg"):
+    i = 3
+    print("Taking picture in ", end="")
+    while(i>0):
+        print(str(i))
+        i-=1
+        time.sleep(1)
     video_capture = cv2.VideoCapture(0)
     # Check success
     if not video_capture.isOpened():
