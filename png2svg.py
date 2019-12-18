@@ -5,10 +5,10 @@ import sys
 import logging
 import operator
 from collections import deque
-from StringIO import StringIO
+import io
 from optparse import OptionParser
 
-import Image
+from PIL import Image
 
 
 
@@ -48,7 +48,7 @@ def svg_header(width, height):
 """ % (width, height)
 
 def rgba_image_to_svg_pixels(im, opaque=None):
-    s = StringIO()
+    s = io.StringIO()
     s.write(svg_header(*im.size))
 
     width, height = im.size
@@ -96,7 +96,7 @@ def joined_edges(assorted_edges, keep_every_point=False):
                     piece = []
                 break
         else:
-            raise Exception, "Failed to find connecting edge"
+            raise Exception("Failed to find connecting edge")
     return pieces
 
 
@@ -182,7 +182,7 @@ def rgba_image_to_svg_contiguous(im, opaque=None, keep_every_point=False):
         for assorted_edges in pieces:
             color_joined_pieces[color].append(joined_edges(assorted_edges, keep_every_point))
 
-    s = StringIO()
+    s = io.StringIO()
     s.write(svg_header(*im.size))
 
     for color, shapes in color_joined_pieces.items():
@@ -207,7 +207,7 @@ def rgba_image_to_svg_contiguous(im, opaque=None, keep_every_point=False):
 def png_to_svg(filename, contiguous=None, opaque=None, keep_every_point=None):
     try:
         im = Image.open(filename)
-    except IOError, e:
+    except (IOError, e):
         sys.stderr.write('%s: Could not open as image file\n' % filename)
         sys.exit(1)
     im_rgba = im.convert('RGBA')
@@ -235,4 +235,4 @@ if __name__ == "__main__":
         log.setLevel(logging.ERROR)
 
     assert len(args) == 1, "Usage: %s [FILE]"
-    print png_to_svg(args[0], contiguous=options.contiguous, opaque=options.opaque, keep_every_point=options.keep_every_point)
+    print(png_to_svg(args[0], contiguous=options.contiguous, opaque=options.opaque, keep_every_point=options.keep_every_point))

@@ -3,6 +3,7 @@ import os
 import process
 import shutil
 import cv2
+import png2svg
 
 
 parser = argparse.ArgumentParser()
